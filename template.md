@@ -190,3 +190,9 @@ fellow_df = read_excel("data/LotR_Words.xlsx",range = "B3:D6")
 ``` r
 pulse_df = read_sas("data/public_pulse_data.sas7bdat")
 ```
+
+## how do i export data
+
+``` r
+write_csv(fellow_df,"data/fellowship_words.csv")
+```
