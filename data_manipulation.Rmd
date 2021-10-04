@@ -1,0 +1,136 @@
+---
+title: "data manipulation"
+output: github_document
+---
+
+```{r, echo = FALSE, message = FALSE}
+library(tidyverse)
+```
+
+## import some data
+
+I want to import `FAS_litters.csv`.
+
+```{r}
+litters_df = read_csv("data/FAS_litters.csv")
+litters_df = janitor::clean_names(litters_df)
+
+pups_df =  read_csv("data/FAS_pups.csv")
+pups_df = janitor::clean_names(pups_df)  
+# first git data_nanipulation example + load data
+```
+
+## `select`
+lets select some column.
+```{r}
+select(litters_df, group, litter_number)
+select(litters_df, group, gd0_weight, gd18_weight)
+
+select(litters_df, group, gd0_weight:gd_of_birth) # from gd0weoght to gdbirth
+
+select(litters_df, -litter_number) # get rid of litternumber
+
+select(litters_df, group, starts_with("pups")) #keep the columns start with "pups; ends_with; contains_with
+
+select(litters_df, GROUP = group, litter_number) 
+
+rename(litters_df, GROUP = group) # new name = old name
+
+select(litters_df, litter_number, everything()) # relocate the column, let the letternumber first
+relocate(litters_df, litter_number)
+
+# learning assignment
+
+select(pups_df, litter_number, sex, pd_ears)
+
+select(litters_df, group)
+pull(litters_df, group) # preferance 
+
+## the second git: select!!
+```
+
+## `filter`
+
+Let's get rid of raws ...
+```{r}
+filter(litters_df, gd_of_birth == 20) # satisfy the condition
+filter(litters_df, group == "Con7")
+
+filter(litters_df, gd0_weight <= 23)
+
+filter(litters_df, pups_survive != 4)
+
+filter(litters_df, !(group == "Con7"))
+
+filter(litters_df, group %in% c("Con7", "Con8"))
+
+filter(litters_df, group == "Con7", gd_of_birth == 20)
+filter(litters_df, group == "Con7" | gd_of_birth == 20) ## |: or; &:and
+
+drop_na(litters_df, gd0_weight)
+
+## learning assessment
+filter(pups_df, sex == 1)
+filter(pups_df, sex == 2, pd_walk < 11)
+## the third git: flitering
+```
+
+## `mutate`
+
+Let's add or change columns!
+
+```{r}
+mutate(litters_df, 
+       weight_change = gd18_weight - gd0_weight,
+       group = str_to_lower(group))
+```
+
+
+## `arrange`
+
+Let's rearrange the data.
+
+```{r}
+arrange(litters_df, gd_of_birth, gd0_weight)
+
+##the third git: mutate and arrange
+```
+
+## Pipes
+
+```{r}
+litters_data_raw = read_csv("data/FAS_litters.csv")
+litters_clean_name = janitor::clean_names(litters_data_raw)
+litters_select = select(litters_clean_name, group, pups_survive)
+litters_filter = filter(litters_select, group == "Con7")
+
+litters_df = 
+  read_csv("data/FAS_litters.csv") %>%
+  janitor::clean_names() %>%
+  select(group,pups_survive) %>%
+  filter(group == "Con7")
+ 
+litters_df = 
+  read_csv("data/FAS_litters.csv") %>%
+  janitor::clean_names() %>%
+  select(-pups_survive) %>%
+  mutate(
+    weight_change = gd18_weight - gd0_weight,
+    group = str_to_lower(group)
+  ) %>%
+  drop_na(weight_change) %>%
+  filter(group %in% c("con7","con8")) %>%
+  select(litter_number, group, weight_change, everything())
+
+## learning assessment
+pups_df = 
+  read_csv("data/FAS_pups.csv") %>%
+  janitor::clean_names() %>%
+  filter(sex == 1) %>%
+  select(-pd_ears) %>%
+  mutate(
+    pd_pivot_more_7 = pd_pivot >= 7
+  )
+
+## the last git: pipe!
+```
